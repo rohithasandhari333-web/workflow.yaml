@@ -1,1 +1,39 @@
+name: CI (fastapi-demo)
 
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test FastAPI Application
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Dependencies
+        working-directory: fastapi-demo
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Tests
+        working-directory: fastapi-demo
+        run: |
+          if [ -d "tests" ]; then
+            pytest
+          else
+            echo "No tests directory found. CI completed successfully."
+          fi
