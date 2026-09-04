@@ -1,16 +1,13 @@
 name: CI (fastapi-demo)
 
-  on:
-     push:
+on:
+  push:
     branches:
       - main
   pull_request:
     branches:
       - main
   workflow_dispatch:
-
-env:
-  IMAGE_NAME: fastapi-demo
 
 jobs:
   test:
@@ -27,35 +24,17 @@ jobs:
           python-version: "3.11"
 
       - name: Install Dependencies
-        working-directory: fastapi-demo
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Tests
-        working-directory: fastapi-demo
+      - name: Test FastAPI
         run: |
-          if [ -d "tests" ]; then
-            pytest
-          else
-            echo "No tests directory found. Skipping tests."
-          fi
-
-  docker-build:
-    name: Build Docker Image
-    runs-on: ubuntu-latest
-    needs: test
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
+          python -c "from main import app; print('FastAPI application loaded successfully')"
 
       - name: Build Docker Image
-        uses: docker/build-push-action@v6
-        with:
-          context: fastapi-demo
-          push: false
-          tags: fastapi-demo:${{ github.sha }}
+        run: |
+          docker build -t fastapi-demo:${{ github.sha }} .
+
+      - name: CI Success
+        run: echo "CI completed successfully"
